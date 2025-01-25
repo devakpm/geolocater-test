@@ -9,7 +9,7 @@ def train_step(model, optimizer, images, coordinates, scaler):
         predictions = model(images)
         loss = haversine_loss(predictions, coordinates)
     
-    scaler.scale(loss).backward()
+    scaler.scale(loss).backward() 
     scaler.step(optimizer)
     scaler.update()
     

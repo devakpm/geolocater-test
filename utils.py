@@ -1,5 +1,5 @@
 import torch
-
+# Implementation of haversine formula to calculate distance between two coordinates on a sphere as loss function
 def haversine_loss(y_pred, y_true):
     lat1 = y_pred[:,0] * torch.pi/180.0
     lon1 = y_pred[:,1] * torch.pi/180.0

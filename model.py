@@ -5,7 +5,8 @@ import torchvision.models as models
 class LocationCNN(nn.Module):
     def __init__(self):
         super(LocationCNN, self).__init__()
-        efficientnet = models.efficientnet_b6(weights=models.EfficientNet_B6_Weights.IMAGENET1K_V1)
+        # largest model that can be trained locally, will maybe switch to a larger model and train on cloud
+        efficientnet = models.efficientnet_b6(weights=models.EfficientNet_B6_Weights.IMAGENET1K_V1) 
         self.features = efficientnet.features
         # Freeze the features
         for param in self.features.parameters():
@@ -33,6 +34,6 @@ class LocationCNN(nn.Module):
     
     def forward(self, x):
         x = self.features(x)
-        x = torch.flatten(x, 1)
+        x = torch.flatten(x, 1) # Flattens 4D tensor to 2D
         x = self.regressor(x)
         return x
