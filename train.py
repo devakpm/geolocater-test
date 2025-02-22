@@ -1,7 +1,20 @@
 import torch
 from torch.amp import autocast, GradScaler
+import torch.nn as nn
 from model import LocationCNN
-from utils import haversine_loss # Calculates distance as loss function
+import pandas as pd
+
+# Implementation of haversine formula to calculate distance between two coordinates on a sphere as loss function
+def haversine_loss(y_pred, y_true):
+    lat1 = y_pred[:,0] * torch.pi/180.0
+    lon1 = y_pred[:,1] * torch.pi/180.0
+    lat2 = y_true[:,0] * torch.pi/180.0
+    lon2 = y_true[:,1] * torch.pi/180.0
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = torch.sin(dlat/2)**2 + torch.cos(lat1) * torch.cos(lat2) * torch.sin(dlon/2)**2
+    c = 2 * torch.arcsin(torch.sqrt(a))
+    return 6371 * c
 
 def train_step(model, optimizer, images, coordinates, scaler):
     optimizer.zero_grad()
@@ -18,14 +31,21 @@ def train_step(model, optimizer, images, coordinates, scaler):
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = LocationCNN().to(device)
-    scaler = GradScaler('cuda')
+    scaler = GradScaler()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+    
+    # Create data loader
+    train_loader = create_data_loaders(
+        image_dir="path/to/images",
+        coordinates_file="path/to/coordinates.csv",
+        batch_size=16
+    )
     
     num_epochs = 100
     
     for epoch in range(num_epochs):
         running_loss = 0.0
-        for batch_idx in range(len(train_loader)):
+        for batch_idx, (images, coordinates) in enumerate(train_loader):
             images = images.to(device)
             coordinates = coordinates.to(device)
             

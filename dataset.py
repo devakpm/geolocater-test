@@ -13,11 +13,11 @@ class GeoLocationDataset(Dataset):
         # Default transform if none provided
         if transform is None:
             self.transform = transforms.Compose([
-                transforms.Resize(528),  # Resize shorter edge to 528
-                transforms.CenterCrop(528),  # Crop to square, we do not want to distort the image since the model is trained on square images
+                transforms.Resize(448),  # EVA-02 expects 448x448 images
+                transforms.CenterCrop(448),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406],
+                    mean=[0.485, 0.456, 0.406],  # ImageNet normalization values
                     std=[0.229, 0.224, 0.225]
                 )
             ])
